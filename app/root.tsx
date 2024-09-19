@@ -5,7 +5,14 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import { Analytics } from "@vercel/analytics/react";
+import type { MetaFunction } from "@vercel/remix";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Authix | Remix auth demo" },
+    { name: "description", content: "Welcome to Authix, a remix auth demo!" },
+  ];
+};
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -20,7 +27,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
-        <Analytics />
       </body>
     </html>
   );

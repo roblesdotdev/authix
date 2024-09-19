@@ -12,7 +12,6 @@
     "@remix-run/node": "2.10.0",
     "@remix-run/react": "2.10.0",
     "@remix-run/server-runtime": "2.10.0",
-    "@vercel/analytics": "^1.2.2",
     "@vercel/remix": "2.10.0",
     "isbot": "^4",
     "react": "^18.2.0",
@@ -33,4 +32,3 @@
   },
   "packageManager": "pnpm@9.10.0"
 }
-
