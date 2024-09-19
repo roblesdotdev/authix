@@ -6,6 +6,7 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import type { MetaFunction } from "@vercel/remix";
+import "~/styles/global.css";
 
 export const meta: MetaFunction = () => {
   return [
@@ -23,7 +24,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="min-h-screen min-w-80 overflow-x-hidden antialiased">
         {children}
         <ScrollRestoration />
         <Scripts />

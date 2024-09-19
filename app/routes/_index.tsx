@@ -1,8 +1,10 @@
 export default function Index() {
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Authix</h1>
-      <p>Working with remix auth.</p>
+    <div className="py-8 flex flex-col items-center">
+      <div className="flex flex-col gap-1 text-center">
+        <h1 className="text-3xl font-medium">Welcome to Authix</h1>
+        <p className="text-neutral-400">Working with remix auth.</p>
+      </div>
     </div>
   );
 }
