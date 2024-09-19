@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "prettier": "prettier \"**/*.+(js|jsx|css|ts|tsx|cjs|mjs)\"",
     "format": "pnpm prettier --list-different",
-    "format:write": "pnpm prettier --write"
+    "format:write": "pnpm prettier --write",
+    "prepare": "husky",
+    "validate": "run-p typecheck lint format"
   },
   "dependencies": {
     "@remix-run/node": "2.10.0",
@@ -33,6 +35,8 @@
     "eslint-plugin-react": "^7.36.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "globals": "^15.9.0",
+    "husky": "^9.1.6",
+    "npm-run-all": "^4.1.5",
     "postcss": "^8.4.47",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",

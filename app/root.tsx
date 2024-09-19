@@ -5,7 +5,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from '@remix-run/react'
-import  { type MetaFunction } from '@vercel/remix'
+import { type MetaFunction } from '@vercel/remix'
 import '~/styles/global.css'
 
 export const meta: MetaFunction = () => {
