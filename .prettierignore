@@ -1,0 +1,11 @@
+node_modules
+
+/.cache
+/.vercel
+/.netlify
+/build
+/dist
+/public
+/functions
+
+worker-configuration.d.ts
