@@ -27,7 +27,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="min-h-screen min-w-80 overflow-x-hidden antialiased">
         <header className="h-16">
-          <nav className="container flex h-inherit w-full items-center justify-between">
+          <nav className="container flex h-[inherit] w-full items-center justify-between">
             <Link to="/">Authix</Link>
             <Link to="/login">Login</Link>
           </nav>

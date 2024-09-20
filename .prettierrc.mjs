@@ -13,5 +13,5 @@ export default {
   trailingComma: 'all',
   useTabs: false,
   plugins: ['prettier-plugin-tailwindcss'],
-  tailwindFunctions: ['clsx', 'cn'],
+  tailwindFunctions: ['clsx', 'cn', 'cva'],
 }

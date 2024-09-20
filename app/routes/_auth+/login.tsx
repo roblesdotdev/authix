@@ -29,7 +29,7 @@ export default function LoginRoute() {
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-canvas text-fg-muted px-2">
+            <span className="bg-canvas px-2 text-fg-muted">
               Or continue with
             </span>
           </div>

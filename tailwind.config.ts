@@ -11,14 +11,10 @@ export default {
       },
     },
     extend: {
-      spacing: {
-        inherit: 'inherit',
-      },
       screens: {
         xs: '475px',
       },
       colors: {
-        /*
         canvas: 'hsl(var(--canvas))',
         panel: 'hsl(var(--panel))',
         fg: {
@@ -29,7 +25,6 @@ export default {
         primary: 'hsl(var(--primary))',
         'on-primary': 'hsl(var(--on-primary))',
         border: 'hsl(var(--border))',
-        */
       },
     },
   },

@@ -2,25 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    color-scheme: dark;
+:root {
+  color-scheme: dark;
 
-    /*
-    --canvas: 0 0% 6%;
-    --panel: 228 12% 8%;
-    --fg-default: 0 0% 90%;
-    --fg-muted: 240 1% 64%;
-    --fg-error: 0 84% 70%;
-    --primary: 193 50% 18%;
-    --on-primary: 0 0% 100%;
+  --canvas: 0 0% 6%;
+  --panel: 228 12% 8%;
+  --fg-default: 0 0% 90%;
+  --fg-muted: 240 1% 64%;
+  --fg-error: 0 84% 70%;
+  --primary: 193 50% 18%;
+  --on-primary: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    */
-  }
+  --border: 0 0% 15%;
 }
 
-/*
 body {
   @apply bg-canvas text-fg;
 }
@@ -37,4 +32,3 @@ a,
 button {
   @apply ring-primary ring-offset-canvas focus:ring-2 focus:ring-offset-2;
 }
-*/
