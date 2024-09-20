@@ -4,11 +4,10 @@ import { Form, useActionData, useSearchParams } from '@remix-run/react'
 import { redirect, json, type ActionFunctionArgs } from '@vercel/remix'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/error-boundary'
-import { ErrorList } from '~/components/forms'
+import { ErrorList, FormField } from '~/components/forms'
 import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
 import { login } from '~/utils/auth.server'
+import { useIsPending } from '~/utils/misc'
 
 export const LoginFormSchema = z.object({
   username: z.string({ message: 'Username is required' }).min(1),
@@ -50,6 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function LoginRoute() {
   const actionData = useActionData<typeof action>()
+  const isPending = useIsPending()
   const [searchParams] = useSearchParams()
   const redirectTo = searchParams.get('redirectTo')
   const [form, fields] = useForm({
@@ -60,7 +60,8 @@ export default function LoginRoute() {
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: LoginFormSchema })
     },
-    shouldRevalidate: 'onBlur',
+    shouldValidate: 'onBlur',
+    shouldRevalidate: 'onInput',
   })
   return (
     <div className="py-8">
@@ -71,30 +72,26 @@ export default function LoginRoute() {
         </div>
         <Form method="post" {...getFormProps(form)}>
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor={fields.username.id}>Username*</Label>
-              <Input
-                placeholder="Username"
-                {...getInputProps(fields.username, { type: 'text' })}
-              />
-              <ErrorList
-                errorId={fields.username.errorId}
-                errors={fields.username.errors}
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor={fields.password.id}>Password*</Label>
-              <Input
-                placeholder="Password"
-                {...getInputProps(fields.password, { type: 'password' })}
-              />
-              <ErrorList
-                errorId={fields.password.errorId}
-                errors={fields.password.errors}
-              />
-            </div>
-            <ErrorList errorId={form.errorId} errors={form.errors} />
-            <Button>Login</Button>
+            <FormField
+              className="flex flex-col gap-2"
+              labelProps={{ children: 'Username*' }}
+              inputProps={{
+                ...getInputProps(fields.username, { type: 'text' }),
+                placeholder: 'Username',
+              }}
+              errors={fields.username.errors}
+            />
+            <FormField
+              className="flex flex-col gap-2"
+              labelProps={{ children: 'Password*' }}
+              inputProps={{
+                ...getInputProps(fields.password, { type: 'password' }),
+                placeholder: 'Password',
+              }}
+              errors={fields.password.errors}
+            />
+            <ErrorList id={form.errorId} errors={form.errors} />
+            <Button disabled={isPending}>Login</Button>
           </div>
         </Form>
         <div className="relative">
