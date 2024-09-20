@@ -1,4 +1,5 @@
 import {
+  Link,
   Links,
   Meta,
   Outlet,
@@ -25,7 +26,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="min-h-screen min-w-80 overflow-x-hidden antialiased">
-        {children}
+        <header className="h-16">
+          <nav className="container flex h-inherit w-full items-center justify-between">
+            <Link to="/">Authix</Link>
+            <Link to="/login">Login</Link>
+          </nav>
+        </header>
+        <div className="container">{children}</div>
         <ScrollRestoration />
         <Scripts />
       </body>
