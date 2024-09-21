@@ -1,12 +1,18 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { Form, Link, useActionData } from '@remix-run/react'
-import { redirect, json, type ActionFunctionArgs } from '@vercel/remix'
+import {
+  redirect,
+  json,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from '@vercel/remix'
 import { z } from 'zod'
 import { FormField } from '~/components/forms'
 import { Button } from '~/components/ui/button'
-import { emailExists } from '~/utils/auth.server'
+import { emailExists, getUserById } from '~/utils/auth.server'
 import { useIsPending } from '~/utils/misc'
+import { sessionStorage } from '~/utils/session.server'
 
 export const RegisterFormSchema = z.object({
   email: z
@@ -42,6 +48,20 @@ export async function action({ request }: ActionFunctionArgs) {
   console.log(email)
 
   return redirect('/')
+}
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const cookieSession = await sessionStorage.getSession(
+    request.headers.get('cookie'),
+  )
+  const userId = cookieSession.get('userId')
+
+  const user = await getUserById(userId)
+  if (user) {
+    return redirect('/')
+  }
+
+  return json({})
 }
 
 export default function RegisterRoute() {

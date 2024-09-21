@@ -1,13 +1,19 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { Form, Link, useActionData, useSearchParams } from '@remix-run/react'
-import { redirect, json, type ActionFunctionArgs } from '@vercel/remix'
+import {
+  type LoaderFunctionArgs,
+  redirect,
+  json,
+  type ActionFunctionArgs,
+} from '@vercel/remix'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/error-boundary'
 import { ErrorList, FormField } from '~/components/forms'
 import { Button } from '~/components/ui/button'
-import { login } from '~/utils/auth.server'
+import { getUserById, login } from '~/utils/auth.server'
 import { useIsPending } from '~/utils/misc'
+import { sessionStorage } from '~/utils/session.server'
 
 export const LoginFormSchema = z.object({
   username: z.string({ message: 'Username is required' }).min(1),
@@ -22,7 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const submission = await parseWithZod(formData, {
     schema: intent => {
       return LoginFormSchema.transform(async (data, ctx) => {
-        if (intent !== null) return { ...data }
+        if (intent !== null) return { ...data, user: null }
 
         const user = await login({ ...data })
         if (!user) {
@@ -32,19 +38,45 @@ export async function action({ request }: ActionFunctionArgs) {
           })
           return z.NEVER
         }
-        return { ...data }
+        return { ...data, user }
       })
     },
     async: true,
   })
 
-  if (submission.status !== 'success') {
-    return json({ result: submission.reply({ hideFields: ['password'] }) })
+  if (submission.status !== 'success' || !submission.value.user) {
+    return json(
+      { result: submission.reply({ hideFields: ['password'] }) },
+      { status: submission.status === 'error' ? 400 : 200 },
+    )
   }
 
-  const { redirectTo } = submission.value
+  const { redirectTo, user } = submission.value
 
-  return redirect(redirectTo ?? '/')
+  const cookieSession = await sessionStorage.getSession(
+    request.headers.get('cookie'),
+  )
+  cookieSession.set('userId', user.id)
+
+  return redirect(redirectTo ?? '/', {
+    headers: {
+      'set-cookie': await sessionStorage.commitSession(cookieSession),
+    },
+  })
+}
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const cookieSession = await sessionStorage.getSession(
+    request.headers.get('cookie'),
+  )
+  const userId = cookieSession.get('userId')
+
+  const user = await getUserById(userId)
+  if (user) {
+    return redirect('/')
+  }
+
+  return json({})
 }
 
 export default function LoginRoute() {

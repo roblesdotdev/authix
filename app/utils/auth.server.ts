@@ -1,5 +1,12 @@
 import { sleep } from './misc'
 
+const demoUser = {
+  id: 'cm1bl3vti00010cmhdoyff3om',
+  username: 'demouser',
+  email: 'demo@user.com',
+  password: 'demopassword',
+}
+
 export async function login({
   username,
   password,
@@ -9,12 +16,20 @@ export async function login({
 }) {
   // TODO
   await sleep(300)
-  if (username !== 'demouser' || password !== 'demopassword') return null
+  if (username !== demoUser.username || password !== demoUser.password)
+    return null
 
-  return 'demouser'
+  return demoUser
 }
 
 export async function emailExists(email: string) {
-  if (email === 'demo@user.com') return true
+  if (email === demoUser.email) return true
   return false
+}
+
+export async function getUserById(id: string) {
+  if (id !== demoUser.id) {
+    return null
+  }
+  return demoUser
 }

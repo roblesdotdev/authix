@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const envSchema = z.object({
-  TEST_MESSAGE: z.string().min(1),
+  SESSION_SECRET: z.string().min(1),
 })
 
 declare global {
