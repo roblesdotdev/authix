@@ -47,7 +47,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <nav className="container flex h-[inherit] w-full items-center justify-between">
             <Link to="/">Authix</Link>
             {data.user ? (
-              <Form>
+              <Form method="POST" action="/logout">
                 <Button variant="outline" className="h-auto px-4 py-2 text-xs">
                   Logout
                 </Button>
