@@ -1,6 +1,6 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import { Form, useActionData, useSearchParams } from '@remix-run/react'
+import { Form, Link, useActionData, useSearchParams } from '@remix-run/react'
 import { redirect, json, type ActionFunctionArgs } from '@vercel/remix'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/error-boundary'
@@ -74,10 +74,10 @@ export default function LoginRoute() {
           <div className="flex flex-col gap-4">
             <FormField
               className="flex flex-col gap-2"
-              labelProps={{ children: 'Username*' }}
+              labelProps={{ children: 'Email or username*' }}
               inputProps={{
                 ...getInputProps(fields.username, { type: 'text' }),
-                placeholder: 'Username',
+                placeholder: 'Email or username',
               }}
               errors={fields.username.errors}
             />
@@ -106,6 +106,14 @@ export default function LoginRoute() {
         </div>
         <div className="flex flex-col gap-2">
           <Button variant="outline">Google</Button>
+        </div>
+        <div className="py-1">
+          <p className="text-center text-fg-muted">
+            Don't have an account?{' '}
+            <Link className="underline hover:text-fg" to="/register">
+              Register
+            </Link>
+          </p>
         </div>
       </div>
     </div>

@@ -13,3 +13,8 @@ export async function login({
 
   return 'demouser'
 }
+
+export async function emailExists(email: string) {
+  if (email === 'demo@user.com') return true
+  return false
+}
