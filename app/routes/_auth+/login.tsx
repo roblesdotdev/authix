@@ -9,9 +9,13 @@ import {
 } from '@vercel/remix'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/error-boundary'
-import { ErrorList, FormField } from '~/components/forms'
+import { CheckboxField, ErrorList, FormField } from '~/components/forms'
 import { Button } from '~/components/ui/button'
-import { getUserById, login } from '~/utils/auth.server'
+import {
+  getSessionExpirationDate,
+  getUserById,
+  login,
+} from '~/utils/auth.server'
 import { useIsPending } from '~/utils/misc'
 import { sessionStorage } from '~/utils/session.server'
 
@@ -51,7 +55,7 @@ export async function action({ request }: ActionFunctionArgs) {
     )
   }
 
-  const { redirectTo, user } = submission.value
+  const { redirectTo, remember, user } = submission.value
 
   const cookieSession = await sessionStorage.getSession(
     request.headers.get('cookie'),
@@ -60,7 +64,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
   return redirect(redirectTo ?? '/', {
     headers: {
-      'set-cookie': await sessionStorage.commitSession(cookieSession),
+      'set-cookie': await sessionStorage.commitSession(cookieSession, {
+        expires: remember ? getSessionExpirationDate() : undefined,
+      }),
     },
   })
 }
@@ -121,6 +127,13 @@ export default function LoginRoute() {
                 placeholder: 'Password',
               }}
               errors={fields.password.errors}
+            />
+            <CheckboxField
+              labelProps={{ children: 'Remember me' }}
+              errors={fields.remember.errors}
+              buttonProps={{
+                ...getInputProps(fields.remember, { type: 'checkbox' }),
+              }}
             />
             <ErrorList id={form.errorId} errors={form.errors} />
             <Button disabled={isPending}>Login</Button>
