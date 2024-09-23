@@ -1,16 +1,58 @@
+import { redirect } from '@vercel/remix'
+import { safeRedirect } from 'remix-utils/safe-redirect'
 import { sleep } from './misc'
+import { sessionStorage } from './session.server'
+export const USER_ID_KEY = 'userId'
 
-const demoUser = {
+const SESSION_EXPIRATION_TIME = 30 * 24 * 60 * 60 * 1000 // 30 days
+
+export const demoUser = {
   id: 'cm1bl3vti00010cmhdoyff3om',
   username: 'demouser',
   email: 'demo@user.com',
   password: 'demopassword',
 }
 
-const SESSION_EXPIRATION_TIME = 30 * 24 * 60 * 60 * 1000 // 30 days
-
 export function getSessionExpirationDate() {
   return new Date(Date.now() + SESSION_EXPIRATION_TIME)
+}
+
+export async function getUserId(request: Request) {
+  const authSession = await sessionStorage.getSession(
+    request.headers.get('cookie'),
+  )
+  const userId = authSession.get(USER_ID_KEY)
+  if (!userId) return null
+  const user = await getUserById(userId)
+  if (!user) {
+    throw redirect('/', {
+      headers: {
+        'set-cookie': await sessionStorage.destroySession(authSession),
+      },
+    })
+  }
+  return user.id
+}
+
+export async function requireAnonymous({
+  request,
+  redirectTo = '/',
+}: {
+  request: Request
+  redirectTo?: string
+}) {
+  const userId = await getUserId(request)
+  if (userId) {
+    throw redirect(safeRedirect(redirectTo ?? '/'))
+  }
+}
+
+export async function requireUserId(request: Request) {
+  const userId = await getUserId(request)
+  if (!userId) {
+    throw redirect('/login')
+  }
+  return userId
 }
 
 export async function login({
@@ -28,9 +70,19 @@ export async function login({
   return demoUser
 }
 
-export async function emailExists(email: string) {
-  if (email === demoUser.email) return true
-  return false
+export async function logout({
+  request,
+  redirectTo = '/',
+}: {
+  request: Request
+  redirectTo?: string
+}) {
+  const authSession = await sessionStorage.getSession(
+    request.headers.get('cookie'),
+  )
+  throw redirect(safeRedirect(redirectTo), {
+    headers: { 'set-cookie': await sessionStorage.destroySession(authSession) },
+  })
 }
 
 export async function getUserById(id: string) {
@@ -38,4 +90,9 @@ export async function getUserById(id: string) {
     return null
   }
   return demoUser
+}
+
+export async function emailExists(email: string) {
+  if (email === demoUser.email) return true
+  return false
 }

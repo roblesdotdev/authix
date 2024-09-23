@@ -10,9 +10,8 @@ import {
 import { z } from 'zod'
 import { FormField } from '~/components/forms'
 import { Button } from '~/components/ui/button'
-import { emailExists, getUserById } from '~/utils/auth.server'
+import { emailExists, requireAnonymous } from '~/utils/auth.server'
 import { useIsPending } from '~/utils/misc'
-import { sessionStorage } from '~/utils/session.server'
 
 export const RegisterFormSchema = z.object({
   email: z
@@ -22,6 +21,7 @@ export const RegisterFormSchema = z.object({
 })
 
 export async function action({ request }: ActionFunctionArgs) {
+  await requireAnonymous({ request })
   const formData = await request.formData()
   const submission = await parseWithZod(formData, {
     schema: RegisterFormSchema.superRefine(async (data, ctx) => {
@@ -51,15 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const cookieSession = await sessionStorage.getSession(
-    request.headers.get('cookie'),
-  )
-  const userId = cookieSession.get('userId')
-
-  const user = await getUserById(userId)
-  if (user) {
-    return redirect('/')
-  }
+  await requireAnonymous({ request })
 
   return json({})
 }

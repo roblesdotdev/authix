@@ -11,8 +11,7 @@ import {
 import { json, type LoaderFunctionArgs, type MetaFunction } from '@vercel/remix'
 import '~/styles/global.css'
 import { Button } from './components/ui/button'
-import { getUserById } from './utils/auth.server'
-import { sessionStorage } from './utils/session.server'
+import { getUserById, getUserId } from './utils/auth.server'
 
 export const meta: MetaFunction = () => {
   return [
@@ -22,11 +21,9 @@ export const meta: MetaFunction = () => {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const cookieSession = await sessionStorage.getSession(
-    request.headers.get('cookie'),
-  )
-  const userId = cookieSession.get('userId')
-  const user = await getUserById(userId)
+  const userId = await getUserId(request)
+
+  const user = userId ? getUserById(userId) : null
 
   return json({ user })
 }
