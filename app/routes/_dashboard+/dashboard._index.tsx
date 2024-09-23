@@ -1,12 +1,9 @@
 import { useLoaderData } from '@remix-run/react'
 import { json, type LoaderFunctionArgs } from '@vercel/remix'
-import { getUserById, requireUserId } from '~/utils/auth.server'
+import { requireUser } from '~/utils/auth.server'
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request)
-  const user = await getUserById(userId)
-
-  if (!user) throw new Response('Invalid user', { status: 400 })
+  const user = await requireUser(request)
 
   return json({ user })
 }

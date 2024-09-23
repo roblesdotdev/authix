@@ -47,12 +47,30 @@ export async function requireAnonymous({
   }
 }
 
-export async function requireUserId(request: Request) {
+export async function requireUserId(
+  request: Request,
+  { redirectTo }: { redirectTo?: string | null } = {},
+) {
   const userId = await getUserId(request)
   if (!userId) {
-    throw redirect('/login')
+    const requestUrl = new URL(request.url)
+    redirectTo =
+      redirectTo === null ? null : `${requestUrl.pathname}${requestUrl.search}`
+    const loginParams = redirectTo ? new URLSearchParams({ redirectTo }) : null
+    const loginRedirect = ['/login', loginParams?.toString()]
+      .filter(Boolean)
+      .join('?')
+    throw redirect(safeRedirect(loginRedirect))
   }
   return userId
+}
+
+export async function requireUser(request: Request) {
+  const userId = await requireUserId(request)
+  if (userId !== demoUser.id) {
+    throw await logout({ request })
+  }
+  return demoUser
 }
 
 export async function login({

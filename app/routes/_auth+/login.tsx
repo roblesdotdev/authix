@@ -7,6 +7,7 @@ import {
   json,
   type ActionFunctionArgs,
 } from '@vercel/remix'
+import { safeRedirect } from 'remix-utils/safe-redirect'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/error-boundary'
 import { CheckboxField, ErrorList, FormField } from '~/components/forms'
@@ -64,7 +65,7 @@ export async function action({ request }: ActionFunctionArgs) {
   )
   cookieSession.set(USER_ID_KEY, user.id)
 
-  return redirect(redirectTo ?? '/', {
+  return redirect(safeRedirect(redirectTo), {
     headers: {
       'set-cookie': await sessionStorage.commitSession(cookieSession, {
         expires: remember ? getSessionExpirationDate() : undefined,
@@ -103,6 +104,7 @@ export default function LoginRoute() {
           <p className="text-fg-muted">Please enter your credentials.</p>
         </div>
         <Form method="post" {...getFormProps(form)}>
+          <input {...getInputProps(fields.redirectTo, { type: 'hidden' })} />
           <div className="flex flex-col gap-4">
             <FormField
               className="flex flex-col gap-2"
