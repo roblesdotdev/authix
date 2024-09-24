@@ -12,12 +12,7 @@ import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/error-boundary'
 import { CheckboxField, ErrorList, FormField } from '~/components/forms'
 import { Button } from '~/components/ui/button'
-import {
-  getSessionExpirationDate,
-  login,
-  requireAnonymous,
-  USER_ID_KEY,
-} from '~/utils/auth.server'
+import { login, requireAnonymous, SESSION_ID_KEY } from '~/utils/auth.server'
 import { useIsPending } from '~/utils/misc'
 import { sessionStorage } from '~/utils/session.server'
 
@@ -35,41 +30,41 @@ export async function action({ request }: ActionFunctionArgs) {
   const submission = await parseWithZod(formData, {
     schema: intent => {
       return LoginFormSchema.transform(async (data, ctx) => {
-        if (intent !== null) return { ...data, user: null }
+        if (intent !== null) return { ...data, session: null }
 
-        const user = await login({ ...data })
+        const session = await login({ ...data })
 
-        if (!user) {
+        if (!session) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: 'Invalid username or password',
           })
           return z.NEVER
         }
-        return { ...data, user }
+        return { ...data, session }
       })
     },
     async: true,
   })
 
-  if (submission.status !== 'success' || !submission.value.user) {
+  if (submission.status !== 'success' || !submission.value.session) {
     return json(
       { result: submission.reply({ hideFields: ['password'] }) },
       { status: submission.status === 'error' ? 400 : 200 },
     )
   }
 
-  const { redirectTo, remember, user } = submission.value
+  const { redirectTo, remember, session } = submission.value
 
   const cookieSession = await sessionStorage.getSession(
     request.headers.get('cookie'),
   )
-  cookieSession.set(USER_ID_KEY, user.id)
+  cookieSession.set(SESSION_ID_KEY, session.id)
 
   return redirect(safeRedirect(redirectTo), {
     headers: {
       'set-cookie': await sessionStorage.commitSession(cookieSession, {
-        expires: remember ? getSessionExpirationDate() : undefined,
+        expires: remember ? session.expirationDate : undefined,
       }),
     },
   })

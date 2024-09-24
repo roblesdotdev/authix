@@ -4,8 +4,8 @@ import bcrypt from 'bcryptjs'
 import { safeRedirect } from 'remix-utils/safe-redirect'
 import { db } from './db.server'
 import { sessionStorage } from './session.server'
-export const USER_ID_KEY = 'userId'
 
+export const SESSION_ID_KEY = 'sessionId'
 const SESSION_EXPIRATION_TIME = 30 * 24 * 60 * 60 * 1000 // 30 days
 
 export function getSessionExpirationDate() {
@@ -16,17 +16,20 @@ export async function getUserId(request: Request) {
   const authSession = await sessionStorage.getSession(
     request.headers.get('cookie'),
   )
-  const userId = authSession.get(USER_ID_KEY)
-  if (!userId) return null
-  const user = await getUserById(userId)
-  if (!user) {
+  const sessionId = authSession.get(SESSION_ID_KEY)
+  if (!sessionId) return null
+  const session = await db.session.findUnique({
+    select: { userId: true },
+    where: { id: sessionId },
+  })
+  if (!session) {
     throw redirect('/', {
       headers: {
         'set-cookie': await sessionStorage.destroySession(authSession),
       },
     })
   }
-  return user.id
+  return session.userId
 }
 
 export async function requireAnonymous({
@@ -78,8 +81,14 @@ export async function login({
 }) {
   const user = await verifyUserPassword({ username }, password)
   if (!user) return null
-
-  return user
+  const session = await db.session.create({
+    select: { id: true, expirationDate: true },
+    data: {
+      userId: user.id,
+      expirationDate: getSessionExpirationDate(),
+    },
+  })
+  return session
 }
 
 export async function logout({
@@ -92,17 +101,13 @@ export async function logout({
   const authSession = await sessionStorage.getSession(
     request.headers.get('cookie'),
   )
+  const sessionId = authSession.get(SESSION_ID_KEY)
+  if (sessionId) {
+    void db.session.deleteMany({ where: { id: sessionId } }).catch(() => {})
+  }
   throw redirect(safeRedirect(redirectTo), {
     headers: { 'set-cookie': await sessionStorage.destroySession(authSession) },
   })
-}
-
-export async function getUserById(id: string) {
-  const user = await db.user.findUnique({ where: { id } })
-  if (!user) {
-    return null
-  }
-  return user
 }
 
 export async function emailExists(email: string) {
@@ -131,4 +136,13 @@ export async function verifyUserPassword(
   }
 
   return { id: userWithPassword.id }
+}
+
+export async function getUserById(id: User['id']) {
+  const user = await db.user.findUnique({
+    select: { id: true, username: true },
+    where: { id },
+  })
+  if (!user) return null
+  return user
 }

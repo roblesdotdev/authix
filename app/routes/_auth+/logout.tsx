@@ -1,16 +1,10 @@
-import { redirect } from '@vercel/remix'
-import { sessionStorage } from '~/utils/session.server'
+import { type ActionFunctionArgs, redirect } from '@vercel/remix'
+import { logout } from '~/utils/auth.server'
 
 export function loader() {
   return redirect('/')
 }
 
-export async function action() {
-  const cookieSession = await sessionStorage.getSession()
-
-  return redirect('/', {
-    headers: {
-      'set-cookie': await sessionStorage.destroySession(cookieSession),
-    },
-  })
+export async function action({ request }: ActionFunctionArgs) {
+  return logout({ request })
 }
