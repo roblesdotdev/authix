@@ -38,6 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
         if (intent !== null) return { ...data, user: null }
 
         const user = await login({ ...data })
+
         if (!user) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,

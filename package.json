@@ -12,11 +12,15 @@
     "format": "pnpm prettier --list-different",
     "format:write": "pnpm prettier --write",
     "prepare": "husky",
-    "validate": "run-p typecheck lint format"
+    "validate": "run-p typecheck lint format",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@conform-to/react": "^1.2.2",
     "@conform-to/zod": "^1.2.2",
+    "@libsql/client": "^0.14.0",
+    "@prisma/adapter-libsql": "^5.20.0",
+    "@prisma/client": "^5.20.0",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
@@ -24,6 +28,7 @@
     "@remix-run/react": "2.10.0",
     "@remix-run/server-runtime": "2.10.0",
     "@vercel/remix": "2.10.0",
+    "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "isbot": "^4",
@@ -37,11 +42,14 @@
   },
   "devDependencies": {
     "@eslint/compat": "^1.1.1",
+    "@faker-js/faker": "^9.0.2",
     "@remix-run/dev": "2.10.0",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.5.5",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "autoprefixer": "^10.4.20",
+    "enforce-unique": "^1.3.0",
     "eslint": "^9.10.0",
     "eslint-plugin-import-x": "^4.2.1",
     "eslint-plugin-react": "^7.36.1",
@@ -52,7 +60,9 @@
     "postcss": "^8.4.47",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",
+    "prisma": "^5.20.0",
     "tailwindcss": "^3.4.12",
+    "tsx": "^4.19.1",
     "typescript": "~5.5.4",
     "typescript-eslint": "^8.6.0",
     "vite": "^5.1.0",
@@ -61,5 +71,8 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "packageManager": "pnpm@9.10.0"
+  "packageManager": "pnpm@9.10.0",
+  "prisma": {
+    "seed": "tsx prisma/seed"
+  }
 }

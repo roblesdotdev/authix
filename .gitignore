@@ -3,3 +3,9 @@ node_modules
 /build
 .env
 .vercel
+
+.env.local
+
+/prisma/*.sqlite
+/prisma/*.db
+/prisma/*.db-journal

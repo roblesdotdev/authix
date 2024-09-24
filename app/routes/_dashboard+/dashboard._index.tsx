@@ -1,5 +1,6 @@
 import { useLoaderData } from '@remix-run/react'
 import { json, type LoaderFunctionArgs } from '@vercel/remix'
+import { GeneralErrorBoundary } from '~/components/error-boundary'
 import { requireUser } from '~/utils/auth.server'
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -16,4 +17,8 @@ export default function DashboardRoute() {
       <h1>Welcome {user.username} to your dashboard.</h1>
     </div>
   )
+}
+
+export function ErrorBoundary() {
+  return <GeneralErrorBoundary />
 }

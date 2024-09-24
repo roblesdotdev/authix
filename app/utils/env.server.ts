@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 export const envSchema = z.object({
   SESSION_SECRET: z.string().min(1),
+  TURSO_DATABASE_URL: z.string().min(1),
+  TURSO_AUTH_TOKEN: z.string().min(1),
 })
 
 declare global {

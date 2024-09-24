@@ -1,17 +1,12 @@
+import { type Password, type User } from '@prisma/client'
 import { redirect } from '@vercel/remix'
+import bcrypt from 'bcryptjs'
 import { safeRedirect } from 'remix-utils/safe-redirect'
-import { sleep } from './misc'
+import { db } from './db.server'
 import { sessionStorage } from './session.server'
 export const USER_ID_KEY = 'userId'
 
 const SESSION_EXPIRATION_TIME = 30 * 24 * 60 * 60 * 1000 // 30 days
-
-export const demoUser = {
-  id: 'cm1bl3vti00010cmhdoyff3om',
-  username: 'demouser',
-  email: 'demo@user.com',
-  password: 'demopassword',
-}
 
 export function getSessionExpirationDate() {
   return new Date(Date.now() + SESSION_EXPIRATION_TIME)
@@ -67,25 +62,24 @@ export async function requireUserId(
 
 export async function requireUser(request: Request) {
   const userId = await requireUserId(request)
-  if (userId !== demoUser.id) {
+  const user = await db.user.findUnique({ where: { id: userId } })
+  if (!user) {
     throw await logout({ request })
   }
-  return demoUser
+  return user
 }
 
 export async function login({
   username,
   password,
 }: {
-  username: string
+  username: User['username']
   password: string
 }) {
-  // TODO
-  await sleep(300)
-  if (username !== demoUser.username || password !== demoUser.password)
-    return null
+  const user = await verifyUserPassword({ username }, password)
+  if (!user) return null
 
-  return demoUser
+  return user
 }
 
 export async function logout({
@@ -104,13 +98,37 @@ export async function logout({
 }
 
 export async function getUserById(id: string) {
-  if (id !== demoUser.id) {
+  const user = await db.user.findUnique({ where: { id } })
+  if (!user) {
     return null
   }
-  return demoUser
+  return user
 }
 
 export async function emailExists(email: string) {
-  if (email === demoUser.email) return true
+  const found = await db.user.findUnique({ where: { email } })
+  if (found) return true
   return false
+}
+
+export async function verifyUserPassword(
+  where: Pick<User, 'username'> | Pick<User, 'id'>,
+  password: Password['hash'],
+) {
+  const userWithPassword = await db.user.findUnique({
+    where,
+    select: { id: true, password: { select: { hash: true } } },
+  })
+
+  if (!userWithPassword || !userWithPassword.password) {
+    return null
+  }
+
+  const isValid = await bcrypt.compare(password, userWithPassword.password.hash)
+
+  if (!isValid) {
+    return null
+  }
+
+  return { id: userWithPassword.id }
 }
