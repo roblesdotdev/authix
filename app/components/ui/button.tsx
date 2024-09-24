@@ -11,6 +11,8 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-primary text-on-primary hover:opacity-90',
         outline: 'border bg-transparent hover:bg-white/[2%]',
+        destructive:
+          'border border-fg-error/20 bg-transparent text-fg-error ring-fg-error hover:bg-fg-error/[2%]',
       },
       size: {
         default: 'h-12 px-6',
